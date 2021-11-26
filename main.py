@@ -29,9 +29,9 @@ async def VLR_scores():
 
 
 @limits(calls=50, period=TEN_MINUTES)
-@app.get("/stats/{region}")
-async def VLR_stats(region):
-    return vlr.vlr_stats(region)
+@app.get("/stats/{region}/{agent}/{timespan}")
+async def VLR_stats(region, agent, timespan):
+    return vlr.vlr_stats(region, agent, timespan)
 
 
 @limits(calls=50, period=TEN_MINUTES)
