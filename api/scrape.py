@@ -258,7 +258,7 @@ class Vlr:
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0",
         }
-        URL = f"https://www.vlr.gg/stats/?event_group_id=all&event_id=all&region={region}&country=all&min_rounds=300&min_rating=1600&agent={agent}&map_id=all&timespan={timespan}"
+        URL = f"https://www.vlr.gg/stats/?event_group_id=all&event_id=all&region={region}&country=all&min_rounds=200&min_rating=1550&agent={agent}&map_id=all&timespan={timespan}"
         html = requests.get(URL, headers=headers)
         soup = BeautifulSoup(html.content, "html.parser")
         status = html.status_code
@@ -267,6 +267,32 @@ class Vlr:
         containers = tbody.findAll("tr")
 
         result = []
+
+
+        iterations = 0
+
+        adrTOTAL = 0
+        adrAVG = 1000000000000
+
+        kdTOTAL = 0
+        kdAVG = 1000000000000
+
+        for container in containers:
+
+            # stats for player
+            stats_container = container.findAll("td", {"class": "mod-color-sq"})
+            kd = stats_container[1].div.text.strip()
+            adr = stats_container[2].div.text.strip()
+
+
+            kdTOTAL += float(kd)
+            adrTOTAL += float(adr)
+            iterations += 1
+
+        if(iterations > 0) :
+            adrAVG = adrTOTAL / float(iterations)
+            kdAVG = kdTOTAL / float(iterations)
+
         for container in containers:
             # name of player
             player_container = container.find("td", {"class": "mod-player mod-a"})
@@ -290,6 +316,12 @@ class Vlr:
             hs = stats_container[7].div.text.strip()
             cl = stats_container[8].div.text.strip()
 
+            # derived stats for player
+            dpr = float(kpr) / (float(kd))
+            entry = float(fkpr) * float(fkpr) / float(fdpr)
+            eff = float(adr) * float(kd)
+
+
             result.append(
                 {
                     "player": player,
@@ -299,10 +331,14 @@ class Vlr:
                     "average_damage_per_round": adr,
                     "kills_per_round": kpr,
                     "assists_per_round": apr,
+                    "deaths_per_round": dpr,
                     "first_kills_per_round": fkpr,
                     "first_deaths_per_round": fdpr,
                     "headshot_percentage": hs,
                     "clutch_success_percentage": cl,
+                    "entry_impact_CUSTOM": entry,
+                    "efficiency_rating_CUSTOM": eff,
+                    "VLST rating": ((float(adr) / float(adrAVG)) + (float(kd) / float(kdAVG))) / 2.0,
                 }
             )
         segments = {"status": status, "segments": result}
