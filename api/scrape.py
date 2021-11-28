@@ -317,9 +317,10 @@ class Vlr:
             cl = stats_container[8].div.text.strip()
 
             # derived stats for player
-            dpr = float(kpr) / (float(kd))
-            entry = float(fkpr) * float(fkpr) / float(fdpr)
-            eff = float(adr) * float(kd)
+            dpr = str(float(kpr) / (float(kd)))
+            entry = str(float(fkpr) * float(fkpr) / float(fdpr))
+            eff = str(float(adr) * float(kd))
+            vlst = str(0.5 * float(adr) / float(adrAVG) + 0.5 * float(kd) / float(kdAVG))
 
 
             result.append(
@@ -338,7 +339,7 @@ class Vlr:
                     "clutch_success_percentage": cl,
                     "entry_impact_CUSTOM": entry,
                     "efficiency_rating_CUSTOM": eff,
-                    "VLST rating": ((float(adr) / float(adrAVG)) + (float(kd) / float(kdAVG))) / 2.0,
+                    "VLST rating": vlst,
                 }
             )
         segments = {"status": status, "segments": result}
